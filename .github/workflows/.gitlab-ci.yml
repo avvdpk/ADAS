@@ -1,0 +1,29 @@
+stages:
+  - build
+  - deploy
+
+# Define the build job
+build_apk:
+  stage: build
+  image: openjdk:11 # Use the openjdk docker image to build Android apps
+  before_script:
+    - apt-get update && apt-get install -y wget unzip
+    - wget https://dl.google.com/android/repository/commandlinetools-linux-7583922_latest.zip
+    - unzip commandlinetools-linux-7583922_latest.zip -d /opt/android-sdk
+    - export ANDROID_HOME=/opt/android-sdk
+    - export PATH=$PATH:$ANDROID_HOME/tools:$ANDROID_HOME/tools/bin:$ANDROID_HOME/platform-tools
+    - yes | sdkmanager --licenses
+    - sdkmanager "platform-tools" "build-tools;30.0.3" "android-30" # Install SDK and build tools
+  script:
+    - ./gradlew assembleRelease # Build the APK using Gradle
+  artifacts:
+    paths:
+      - app/build/outputs/apk/release/app-release.apk # Path to the generated APK
+
+# Optionally, define a deployment job
+deploy:
+  stage: deploy
+  script:
+    - echo "Deploying APK..." # Add your deployment script here (optional)
+  only:
+    - main # Only run on the main branch
