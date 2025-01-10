@@ -1,0 +1,54 @@
+workflows:
+  adam_workflow:
+    name: Build ADAM APK
+    environment:
+      vars:
+        ANDROID_NDK_HOME: $CM_BUILD_DIR/android-ndk-r10e
+        ANDROID_SDK_ROOT: /opt/android-sdk
+      java: openjdk11
+    scripts:
+      - name: Install build dependencies
+        script: |
+          echo "Installing required build dependencies"
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            cmake \
+            libgtk2.0-dev \
+            pkg-config \
+            libavcodec-dev \
+            libavformat-dev \
+            libswscale-dev \
+            libtbb2 \
+            libtbb-dev \
+            libjpeg-dev \
+            libpng-dev \
+            libtiff-dev \
+            libjasper-dev \
+            libdc1394-22-dev
+
+      - name: Setup Git LFS and OpenCV
+        script: |
+          bash git-lfs.sh
+          bash get_opencv.sh
+
+      - name: Download and setup Android NDK
+        script: |
+          REVISION="10e"
+          ARCH=$(uname -m)
+          FILE="android-ndk-r${REVISION}-linux-${ARCH}.bin"
+          wget http://dl.google.com/android/ndk/${FILE}
+          chmod a+x ${FILE}
+          ./${FILE} > /dev/null
+
+      - name: Build APK
+        script: |
+          TERM=dumb ./gradlew assembleRelease -Djava.library.path=$HOME/opencv/share/OpenCV/java
+
+    artifacts:
+      - mobile/build/outputs/apk/**/*.apk
+
+    publishing:
+      email:
+        recipients:
+          - your-email@example.com
