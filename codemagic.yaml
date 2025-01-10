@@ -5,7 +5,8 @@ workflows:
       vars:
         ANDROID_NDK_HOME: $CM_BUILD_DIR/android-ndk-r10e
         ANDROID_SDK_ROOT: /opt/android-sdk
-      java: openjdk11
+        JAVA_HOME: /opt/java/openjdk-11
+      java: openjdk11  # Remove this line or keep it depending on available versions
     scripts:
       - name: Install build dependencies
         script: |
@@ -51,4 +52,4 @@ workflows:
     publishing:
       email:
         recipients:
-          - your-email@example.com
+          - praveen.avvd@gmail.com
